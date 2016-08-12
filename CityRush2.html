@@ -1,0 +1,339 @@
+<html>
+<head>
+<title>jump</title>
+
+<script type="application/javascript"></script>
+    <script src="CityRush.js">
+   
+    
+     window.onload = function() {
+    var c = document.getElementById("mycanvas");
+    var ctx = c.getContext("2d");
+    var main = document.getElementById("girl");
+	ctx.drawImage(main, 100, 10, 200, 180);
+    
+    
+    //nakedcowboy
+    var nakedcowboy = document.getElementById("nakedcowboy");
+    ctx.drawImage(nakedcowboy, 300, 150, 200, 180);
+    
+    //girl5
+    var girl5 = document.getElementById("girl5");
+    ctx.drawImage(girl5, 300, 150, 200, 180);
+    
+    
+      //minion
+    var minion = document.getElementById("minion");
+    ctx.drawImage(minion, 500, 150, 200, 180);
+    
+      //man5
+    var man5= document.getElementById("man5");
+    ctx.drawImage(man5, 300, 150, 200, 180);
+    
+    //dalya
+    var dalya = document.getElementById("dalya");
+    ctx.drawImage(dalya, 300, 150, 200, 180);
+    
+    //girl4
+    var girl4 = document.getElementById("girl4");
+    ctx.drawImage(girl4, 300, 150, 200, 180);
+    
+     //selfie
+    var selfie= document.getElementById("selfie");
+    ctx.drawImage(selfie, 300, 150, 200, 180);
+    
+    //ny
+    var ny= document.getElementById("ny");
+    ctx.drawImage(ny, 300, 150, 200, 180);
+    
+    //elmo
+    var elmo= document.getElementById("elmo");
+    ctx.drawImage(elmo, 300, 150, 200, 180);
+    
+     
+    //girl3
+    var girl3= document.getElementById("girl3");
+    ctx.drawImage(girl3, 300, 150, 200, 180);
+}
+
+
+
+  </script>
+
+
+
+
+
+
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.8.2.js"></script>
+
+<script src="http://cloud.github.com/downloads/processing-js/processing-js/processing-1.4.1.min.js"></script>
+<script type="text/processing" data-processing-target="mycanvas">
+class SideJumper
+{
+PImage image;
+PVector position;
+float direction;
+PVector velocity;
+float jumpSpeed;
+float walkSpeed;
+}
+// GLOBAL VARIABLES
+SideJumper girl;
+float left;
+float right;
+float up;
+float down;
+
+var frontScroller;
+var middleScroller;
+var backScroller;
+
+
+//Declare pictures
+
+PImage nakedcowboy;
+PImage girl5;
+PImage minion;
+PImage man5;
+PImage dalya;
+PImage girl4;
+PImage selfie;
+PImage ny;
+PImage elmo;
+PImage girl3;
+
+
+
+
+
+// half a pixel per frame gravity.
+float gravity = .5;
+// Y coordinate of ground for collision
+float ground = 700;
+
+
+void setup()
+{
+size(800, 800);
+girl = new SideJumper();
+girl.image = loadImage("girl.png");
+girl.position = new PVector(400, ground);
+girl.direction = 1;
+girl.velocity = new PVector(0, 0);
+girl.jumpSpeed = 10;
+girl.walkSpeed = 4;
+
+
+//Load characters
+nakedcowboy = loadImage("nakedcowboy.png");
+girl5 = loadImage("girl5.png");
+minion = loadImage("minion.png");
+man5 = loadImage("man5.png");
+dalya = loadImage("dalya.png");
+girl4 = loadImage("girl4.png");
+selfie = loadImage("selfie.png");
+ny = loadImage("ny.png");
+elmo = loadImage("elmo.png");
+girl3 = loadImage("girl3.png");
+
+
+
+
+frontScroller = new Scroller(800,200,670,5,[144,144,144]);
+middleScroller = new Scroller(800,300,550,.3,[76,70,70]);
+backScroller = new Scroller(800,20,550,0,[27,25,25]);
+}
+void draw()
+{
+
+background(145,215,215);
+
+fill(255,255,102);
+ellipse(55,40,50,50);
+
+
+backScroller.drawBuildings();
+backScroller.moveBuildings();
+middleScroller.drawBuildings();
+middleScroller.moveBuildings();
+frontScroller.drawBuildings();
+frontScroller.moveBuildings();
+
+fill(208,208,208);
+rect(0,670,1055,260);
+
+//Characters Apear
+image(elmo,630,670,120,120);
+image(nakedcowboy, 450,720,120,120);
+image(girl5, 700,680,120,120);
+image(man5, 570,720,120,120);
+image(dalya, 500,700,120,120);
+image(girl4, 730,700,120,120);
+image(selfie, 550,750,120,120);
+image(ny, 685,670,120,120);
+image(minion, 670,720,120,120);
+image(girl3,500,670,120,120);
+
+
+
+
+updategirl();
+}
+void updategirl()
+{
+// Only apply gravity if above ground (since y positive is down we use < ground)
+if (girl.position.y < ground)
+{
+girl.velocity.y += gravity;
+}
+else
+{
+girl.velocity.y = 0;
+}
+// If on the ground and "jump" keyy is pressed set my upward velocity to the jump speed!
+if (girl.position.y >= ground && up != 0)
+{
+girl.velocity.y = -girl.jumpSpeed;
+}
+// Wlak left and right. See Car example for more detail.
+girl.velocity.x = girl.walkSpeed * (left + right);
+// We check the nextPosition before actually setting the position so we can
+// not move the girl if he's colliding.
+PVector nextPosition = new PVector(girl.position.x, girl.position.y);
+nextPosition.add(girl.velocity);
+// Check collision with edge of screen and don't move if at the edge
+float offset = 0;
+if (nextPosition.x > offset && nextPosition.x < (width - offset))
+{
+girl.position.x = nextPosition.x;
+}
+if (nextPosition.y > offset && nextPosition.y < (height - offset))
+{
+girl.position.y = nextPosition.y;
+}
+// See car example for more detail here.
+pushMatrix();
+translate(girl.position.x, girl.position.y);
+// Always scale after translate and rotate.
+// We're using girl.direction because a -1 scale flips the image in that direction.
+scale(girl.direction, 1);
+imageMode(CENTER);
+image(girl.image, -300, -40, 130,130);
+popMatrix();
+}
+void keyPressed()
+{
+if (key == ' ')
+{
+up = -1;
+}
+}
+void keyReleased()
+{
+if (key == ' ')
+{
+up = 0;
+}
+}
+class Building {
+var xPosition;
+var yPosition;
+var height;
+var width;
+var r;
+var g;
+var b;
+Building(bWidth,bHeight, color, x, y){
+xPosition = x;
+yPosition = y;
+r = color[0];
+g = color[1];
+b = color[2];
+width = bWidth;
+height = bHeight;
+}
+void drawBuilding(){
+noStroke();
+fill(r,g,b);
+rect(xPosition, yPosition, width, height);
+}
+void move(speed){
+xPosition -= speed;
+}
+}
+
+class Scroller {
+var layerWidth;
+var layerHeight;
+var basePosition;
+var speed;
+var r;
+var g;
+var b;
+var scrollEndX = 0;
+var buildings = new Array();
+Scroller(width,height,base,scrollSpeed,color){
+layerWidth = width;
+layerHeight = height;
+basePosition = base;
+speed = scrollSpeed;
+r = color[0];
+g = color[1];
+b = color[2];
+//create buildings to fill the width
+currentWidth = 0;
+while(currentWidth <= layerWidth){
+var buildingWidth = Math.floor(Math.random() * ((layerHeight*1.5) - (layerHeight/2)+1) + (layerHeight/4));//no building should be wider than a quarter of the width or shorter than a 20th
+var maxHeight = basePosition - layerHeight;
+var buildingHeight = (Math.floor(Math.random() * (maxHeight - ((maxHeight/4)+1))) + (maxHeight/4));
+buildings.push(new Building(buildingWidth,buildingHeight,[r,g,b],currentWidth,basePosition-buildingHeight));
+currentWidth += buildingWidth;
+}
+scrollEndX = currentWidth;
+}
+void drawBuildings(){
+for(var i = 0; i < buildings.length; i++){
+buildings[i].drawBuilding();
+}
+}
+void moveBuildings(){
+for(var i = 0; i < buildings.length; i++){
+buildings[i].move(speed);
+}
+scrollEndX -= speed;
+if(scrollEndX <= 800){
+addBuilding(scrollEndX);
+}
+}
+void addBuilding(xLocation){
+var buildingWidth = Math.floor(Math.random() * ((layerHeight*1.5) - (layerHeight/2)+1) + (layerHeight/4));//no building should be wider than a quarter of the width or shorter than a 20th
+var maxHeight = basePosition - layerHeight;
+var buildingHeight = (Math.floor(Math.random() * (maxHeight - ((maxHeight/4)+1))) + (maxHeight/4));
+buildings.push(new Building(buildingWidth,buildingHeight,[r,g,b],xLocation,basePosition-buildingHeight));
+scrollEndX += buildingWidth;
+}
+}
+</script>
+<style type="text/css">
+canvas { border: 3px solid black; }
+</style>
+<style>
+h1{
+color: purple;
+}
+</style>
+</head>
+<center>
+<h1>City Rush</h1>
+
+<body>
+
+<canvas id="mycanvas" width="240" height="297" style="border:1px solid #d3d3d3;"></canvas>
+
+</body>
+
+</center>
+
+</html>

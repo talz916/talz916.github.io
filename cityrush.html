@@ -1,0 +1,286 @@
+<html>
+<head>
+
+<meta charset="utf-8"/>
+<meta charset="utf-8"/>
+
+<title>City Rush</title>
+
+ <script type="application/javascript"></script>
+
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.8.2.js"></script>
+
+<script src="http://cloud.github.com/downloads/processing-js/processing-js/processing-1.4.1.min.js"></script>
+		<script type="text/processing" data-processing-target="mycanvas">
+  	
+  		var frontScroller;
+		var middleScroller;
+		var backScroller;
+	
+	class SideJumper
+{
+  PImage image;
+  PVector position;
+  var direction;
+  PVector velocity;
+  var jumpSpeed;
+  var walkSpeed;
+}
+ 
+// GLOBAL VARIABLES
+ 
+SideJumper oldGuy;
+var left;
+var right;
+var up;
+var down;
+ 
+// half a pixel per frame gravity.
+var gravity = .5;
+ 
+// Y coordinate of ground for collision
+var ground = 700; 
+		void setup()
+		{
+			size(800,600);
+			background(17,9,89);
+			frontScroller = new Scroller(800,200,600,5,[90,340,130]);
+			middleScroller = new Scroller(800,150,500,.3,[115,72,215]);
+			backScroller = new Scroller(800,20,450,0,[50,50,150]);
+   
+  			oldGuy = new SideJumper();
+  			oldGuy.image = loadImage("pizza.png");
+  			oldGuy.position = new PVector(400, ground);
+  			oldGuy.direction = 1;
+  			oldGuy.velocity = new PVector(0, 0);
+  			oldGuy.jumpSpeed = 10;
+  			oldGuy.walkSpeed = 4;
+		}
+
+		void draw(){  
+			/*background(72,215,215);
+		
+			backScroller.drawBuildings();
+			backScroller.moveBuildings();
+			
+			middleScroller.drawBuildings();
+			middleScroller.moveBuildings();
+			
+			frontScroller.drawBuildings();
+			frontScroller.moveBuildings();
+			
+			fill(130,121,130);
+			rect(0,530,1055,260);
+			*/
+			updateOldGuy();
+		}
+
+	void updateOldGuy()
+{
+  // Only apply gravity if above ground (since y positive is down we use < ground)
+  if (oldGuy.position.y < ground)
+  {
+    oldGuy.velocity.y += gravity;
+  }
+  else
+  {
+    oldGuy.velocity.y = 0;
+  }
+   
+  // If on the ground and "jump" keyy is pressed set my upward velocity to the jump speed!
+  if (oldGuy.position.y >= ground && up != 0)
+  {
+    oldGuy.velocity.y = -oldGuy.jumpSpeed;
+  }
+   
+  // Wlak left and right. See Car example for more detail.
+  oldGuy.velocity.x = oldGuy.walkSpeed * (left + right);
+   
+  // We check the nextPosition before actually setting the position so we can
+  // not move the oldguy if he's colliding.
+  PVector nextPosition = new PVector(oldGuy.position.x, oldGuy.position.y);
+  nextPosition.add(oldGuy.velocity);
+   
+  // Check collision with edge of screen and don't move if at the edge
+  var offset = 0;
+  if (nextPosition.x > offset && nextPosition.x < (width - offset))
+  {
+    oldGuy.position.x = nextPosition.x;
+  }
+  if (nextPosition.y > offset && nextPosition.y < (height - offset))
+  {
+    oldGuy.position.y = nextPosition.y;
+  }
+   
+  // See car example for more detail here.
+  pushMatrix();
+   
+  translate(oldGuy.position.x, oldGuy.position.y);
+   
+  // Always scale after translate and rotate.
+  // We're using oldGuy.direction because a -1 scale flips the image in that direction.
+  scale(oldGuy.direction, 1);
+   
+  imageMode(CENTER);
+  image(oldGuy.image, 0, 0);
+   
+  popMatrix();
+}
+ 
+void keyPressed()
+{
+  if (key == 'd')
+  {
+    right = 1;
+    oldGuy.direction = -1;
+  }
+  if (key == 'a')
+  {
+    left = -1;
+    oldGuy.direction = 1;
+  }
+  if (key == ' ')
+  {
+    up = -1;
+  }
+  if (key == 's')
+  {
+    down = 1;
+  }
+}
+ 
+void keyReleased()
+{
+  if (key == 'd')
+  {
+    right = 0;
+  }
+  if (key == 'a')
+  {
+    left = 0;
+  }
+  if (key == ' ')
+  {
+    up = 0;
+  }
+  if (key == 's')
+  {
+    down = 0;
+  }
+}
+		class Building {
+			var xPosition;
+			var yPosition;
+			var height;
+			var width;
+			var r;
+			var g;
+			var b;
+			
+			Building(bWidth,bHeight, color, x, y){
+				xPosition = x;
+				yPosition = y;
+				r = color[0];
+				g = color[1];
+				b = color[2];
+				width = bWidth;
+				height = bHeight;
+			}
+			
+			void drawBuilding(){
+				noStroke();
+				fill(r,g,b);
+				rect(xPosition, yPosition, width, height);
+			}
+			
+			void move(speed){
+				xPosition -= speed;
+			}
+			}
+
+		
+		class Scroller {
+			var layerWidth;
+			var layerHeight; 
+			var basePosition; 
+			var speed;
+			var r;
+			var g;
+			var b;
+			var scrollEndX = 0;
+			var buildings = new Array();
+			
+			Scroller(width,height,base,scrollSpeed,color){
+				layerWidth = width;
+				layerHeight = height;
+				basePosition = base;
+				speed = scrollSpeed;
+				r = color[0];
+				g = color[1];
+				b = color[2];
+				
+				//create buildings to fill the width
+				currentWidth = 0;
+				while(currentWidth <= layerWidth){
+					var buildingWidth = Math.floor(Math.random() * ((layerHeight*1.5) - (layerHeight/2)+1) + (layerHeight/4));//no building should be wider than a quarter of the width or shorter than a 20th
+					var maxHeight = basePosition - layerHeight;
+					var buildingHeight = (Math.floor(Math.random() * (maxHeight - ((maxHeight/4)+1))) + (maxHeight/4));
+					buildings.push(new Building(buildingWidth,buildingHeight,[r,g,b],currentWidth,basePosition-buildingHeight));
+					currentWidth += buildingWidth;
+				}
+				scrollEndX = currentWidth;
+			}
+			
+			
+			void drawBuildings(){
+				for(var i = 0; i < buildings.length; i++){
+					buildings[i].drawBuilding();
+				}
+			}
+			
+			void moveBuildings(){
+				for(var i = 0; i < buildings.length; i++){
+					buildings[i].move(speed);
+				}
+				scrollEndX -= speed;
+				if(scrollEndX <= 800){
+					addBuilding(scrollEndX);
+				}
+			}
+			
+			void addBuilding(xLocation){
+				var buildingWidth = Math.floor(Math.random() * ((layerHeight*1.5) - (layerHeight/2)+1) + (layerHeight/4));//no building should be wider than a quarter of the width or shorter than a 20th
+				var maxHeight = basePosition - layerHeight;
+				var buildingHeight = (Math.floor(Math.random() * (maxHeight - ((maxHeight/4)+1))) + (maxHeight/4));
+				buildings.push(new Building(buildingWidth,buildingHeight,[r,g,b],xLocation,basePosition-buildingHeight));
+				scrollEndX += buildingWidth;
+			}
+    }
+    </script>
+     <style type="text/css">
+      canvas { border: 3px solid black; }
+	</style>
+	
+	<style>
+		h1{
+			color: purple;
+		}
+	</style>
+
+</head>
+<body>
+<center>
+<h1>City Rush</h1>
+
+
+
+<canvas id="mycanvas" width="240" height="297" style="border:1px solid #d3d3d3;"></canvas>
+
+</body>
+
+</center>
+
+
+
+</html>

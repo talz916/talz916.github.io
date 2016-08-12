@@ -1,0 +1,450 @@
+<html>
+<head>
+<title>NYC RUSH</title>
+<link rel="icon" type="image/png"
+     href="cityrush.png" />
+<script type="application/javascript"></script>
+
+<style type="text/css">
+canvas { border: 3px solid black; }
+</style>
+<style>
+@font-face{font-family:city;
+		src: url('budmo jiggler.ttf')}
+@font-face{font-family:rush;
+		src: url('paladins.ttf')}
+h1{
+color: black;
+font-family: city;
+}
+h2{
+color: #FFE21E;
+font-family: rush;
+font-size: 
+}
+</style>
+</head>
+<center>
+<h1>NEW YORK CITY</h1>
+<h2>RUSH</h2>
+
+
+<script type="application/javascript"></script>
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.8.2.js"></script>
+
+<script src="http://cloud.github.com/downloads/processing-js/processing-js/processing-1.4.1.min.js"></script>
+<script type="text/processing" data-processing-target="mycanvas">
+//from processing import *
+//from random import randrange
+//from math import *
+//import sys
+
+
+class SideJumper
+{
+PImage image;
+PVector position;
+float direction;
+PVector velocity;
+float jumpSpeed;
+float walkSpeed;
+}
+// GLOBAL VARIABLES
+SideJumper girl;
+float left;
+float right;
+float up;
+float down;
+
+var frontScroller;
+var middleScroller;
+var backScroller;
+
+//Declare pictures
+
+PImage nakedcowboy;
+PImage girl5;
+PImage minion;
+PImage man5;
+PImage dalya;
+PImage girl4;
+PImage selfie;
+PImage ny;
+PImage elmo;
+PImage girl3;
+
+
+// half a pixel per frame gravity.
+float gravity = .5;
+// Y coordinate of ground for collision
+float ground = 700;
+
+void setup()
+{
+size(800, 800);
+girl = new SideJumper();
+girl.image = loadImage("girl.png");
+girl.position = new PVector(400, ground);
+girl.direction = 1;
+girl.velocity = new PVector(0, 0);
+girl.jumpSpeed = 15;
+girl.walkSpeed = 4;
+
+
+//Load characters
+nakedcowboy = loadImage("nakedcowboy.png");
+girl5 = loadImage("girl5.png");
+minion = loadImage("minion.png");
+man5 = loadImage("man5.png");
+dalya = loadImage("dalya.png");
+girl4 = loadImage("girl4.png");
+selfie = loadImage("selfie.png");
+ny = loadImage("ny.png");
+elmo = loadImage("elmo.png");
+girl3 = loadImage("girl3.png");
+
+//Load trash
+banana = loadImage("banana.png");
+candywrapper1 = loadImage("candywrapper1.png");
+coffee = loadImage("coffee.png");
+apple1 = loadImage("apple1.png");
+newspaper = loadImage("newpaper.png");
+
+//load clouds
+cloud = loadImage("cloud.png");
+
+
+//Tourists
+nakedcowboy = new chara(random(800,7000), 700 ,nakedcowboy, random(2,4.5)); //MAKE RANDOM SPEEDS
+girl5 = new chara(random(800,7000), 700, girl5, random(2,4.5));
+minion = new chara(random(800,7000), 700,minion, random(2,4.5));
+man5 = new chara(random(800,7000), 700,man5, random(2,4.5));
+dalya = new chara(random(800,7000), 700,dalya, random(2,4.5));
+girl4 = new chara(random(800,7000), 700,girl4, random(2,4.5));
+selfie = new chara(random(800,7000), 700,selfie, random(2,4.5));
+ny = new chara(random(800,7000), 700,ny, random(2,4.5));
+elmo = new chara(random(800,7000), 700,elmo, random(2,4.5));
+girl3 = new chara(random(800,7000), 700,girl3, random(2,4.5));
+
+//Trash
+candywrapper1 = new chara(random(800,7000), 515,candywrapper1, 3);
+coffee = new chara(random(800,7000), 500,coffee, 3);
+banana = new chara(random(800,7000), 500,banana, 2.5);
+apple1 = new chara(random(800,7000), 500, apple1, 3);
+newspaper = new chara(random(800,7000), 500, newspaper, 3);
+
+//clouds
+cloud = new chara(200,200, cloud, 3)
+
+
+frontScroller = new Scroller(800,200,670,5,[144,144,144]);
+middleScroller = new Scroller(800,300,550,.3,[76,70,70]);
+backScroller = new Scroller(800,20,550,0,[27,25,25]);
+}
+
+var life = 5;
+var points = 0;
+
+class chara{
+	var xPosi; 
+	var yPosi;
+	var speed1;
+	PImage char; 
+	
+	chara(xPosi, yPosi, char, speed1){
+		this.xPosi = xPosi;
+		this.yPosi = yPosi;
+		this.char = char;
+		this.speed1= speed1;
+	}
+
+	void drawCharacter(){
+		image(char, xPosi, yPosi, 120, 120);
+	}
+	
+	void move(){
+		xPosi -= speed1;
+		if(xPosi < -3000)
+		{
+			xPosi = 900; //MAKE RANDOM X POSITIONS
+		}
+	}
+	
+	void charTouch(){
+		if(((xPosi > 100) && (xPosi < 150)) && (girl.position.y == 700))  
+		{
+			xPosi = 5000;
+			life -= 1;
+			if(life == 0)
+			{
+				console.log("game over");
+			}
+		}
+	}
+	
+	void trashTouch(){
+		if(((xPosi > 100) && (xPosi < 150)) && ((girl.position.y >= 500) && (girl.position.y <=550)))
+			{	
+				xPosi = 8000;
+				points += 1;
+				console.log("ok");
+			}
+	}
+	
+}
+
+void draw()
+{
+
+background(145,215,215);
+
+fill(255,255,102);
+ellipse(55,40,50,50);
+
+
+backScroller.drawBuildings();
+backScroller.moveBuildings();
+middleScroller.drawBuildings();
+middleScroller.moveBuildings();
+frontScroller.drawBuildings();
+frontScroller.moveBuildings();
+
+fill(208,208,208);
+rect(0,670,1055,260);
+
+updategirl();
+
+//Characters Apear
+//MAKE RANDOM ORDER
+nakedcowboy.drawCharacter();
+nakedcowboy.move();
+nakedcowboy.charTouch();
+
+girl5.drawCharacter();
+girl5.move();
+girl5.charTouch();
+
+man5.drawCharacter();
+man5.move();
+man5.charTouch();
+
+dalya.drawCharacter();
+dalya.move();
+dalya.charTouch();
+
+girl4.drawCharacter();
+girl4.move();
+girl4.charTouch();
+
+selfie.drawCharacter();
+selfie.move();
+selfie.charTouch();
+
+ny.drawCharacter();
+ny.move();
+ny.charTouch();
+
+minion.drawCharacter();
+minion.move();
+minion.charTouch();
+
+girl3.drawCharacter();
+girl3.move();
+girl3.charTouch();
+
+elmo.drawCharacter();
+elmo.move();
+elmo.charTouch();
+
+apple1.drawCharacter();
+apple1.move();
+apple1.trashTouch();
+
+candywrapper1.drawCharacter();
+candywrapper1.move();
+candywrapper1.trashTouch();
+
+coffee.drawCharacter();
+coffee.move();
+coffee.trashTouch();
+
+banana.drawCharacter();
+banana.move();
+banana.trashTouch();
+
+newspaper.drawCharacter();
+newspaper.move();
+newspaper.trashTouch();
+
+cloud.drawCharacter();
+cloud.move();
+
+textSize(30);
+fill(200,0,0);
+text("Lives: " + life, 105, 50);
+
+textSize(30);
+fill(200,0,0);
+text("Points: " + points, 105, 80);
+}
+
+
+void randomChoice(){
+	r = int(random(0,10));
+	image(pics[r],400,680,120,120);
+	return r; 
+}
+
+void updategirl()
+{
+// Only apply gravity if above ground (since y positive is down we use < ground)
+if (girl.position.y < ground)
+{
+girl.velocity.y += gravity;
+}
+else
+{
+girl.velocity.y = 0;
+}
+// If on the ground and "jump" keyy is pressed set my upward velocity to the jump speed!
+if (girl.position.y >= ground && up != 0)
+{
+girl.velocity.y = -girl.jumpSpeed;
+}
+girl.velocity.x = girl.walkSpeed * (left + right);
+// We check the nextPosition before actually setting the position so we can
+// not move the girl if he's colliding.
+PVector nextPosition = new PVector(girl.position.x, girl.position.y);
+nextPosition.add(girl.velocity);
+// Check collision with edge of screen and don't move if at the edge
+float offset = 0;
+if (nextPosition.x > offset && nextPosition.x < (width - offset))
+{
+girl.position.x = nextPosition.x;
+}
+if (nextPosition.y > offset && nextPosition.y < (height - offset))
+{
+girl.position.y = nextPosition.y;
+}
+// See car example for more detail here.
+pushMatrix();
+translate(girl.position.x, girl.position.y);
+// Always scale after translate and rotate.
+// We're using girl.direction because a -1 scale flips the image in that direction.
+scale(girl.direction, 1);
+imageMode(CENTER);
+image(girl.image, -300, -40, 130,130);
+popMatrix();
+}
+void keyPressed()
+{
+if (key == ' ')
+{
+up = -1;
+}
+}
+void keyReleased()
+{
+if (key == ' ')
+{
+up = 0;
+}
+} 
+
+
+class Building {
+var xPosition;
+var yPosition;
+var height;
+var width;
+var r;
+var g;
+var b;
+Building(bWidth,bHeight, color, x, y){
+xPosition = x;
+yPosition = y;
+r = color[0];
+g = color[1];
+b = color[2];
+width = bWidth;
+height = bHeight;
+}
+void drawBuilding(){
+noStroke();
+fill(r,g,b);
+rect(xPosition, yPosition, width, height);
+}
+void move(speed){
+xPosition -= speed;
+}
+}
+
+class Scroller {
+var layerWidth;
+var layerHeight;
+var basePosition;
+var speed;
+var r;
+var g;
+var b;
+var scrollEndX = 0;
+var buildings = new Array();
+Scroller(width,height,base,scrollSpeed,color){
+	layerWidth = width;
+	layerHeight = height;
+	basePosition = base;
+	speed = scrollSpeed;
+	r = color[0];
+	g = color[1];
+	b = color[2];
+	//create buildings to fill the width
+	currentWidth = 0;
+	
+while(currentWidth <= layerWidth){
+var buildingWidth = Math.floor(Math.random() * ((layerHeight*1.5) - (layerHeight/2)+1) + (layerHeight/4));//no building should be wider than a quarter of the width or shorter than a 20th
+var maxHeight = basePosition - layerHeight;
+var buildingHeight = (Math.floor(Math.random() * (maxHeight - ((maxHeight/4)+1))) + (maxHeight/4));
+buildings.push(new Building(buildingWidth,buildingHeight,[r,g,b],currentWidth,basePosition-buildingHeight));
+currentWidth += buildingWidth;
+}
+scrollEndX = currentWidth;
+}
+void drawBuildings(){
+for(var i = 0; i < buildings.length; i++){
+buildings[i].drawBuilding();
+}
+}
+void moveBuildings(){
+for(var i = 0; i < buildings.length; i++){
+buildings[i].move(speed);
+}
+scrollEndX -= speed;
+if(scrollEndX <= 800){
+addBuilding(scrollEndX);
+}
+}
+void addBuilding(xLocation){
+var buildingWidth = Math.floor(Math.random() * ((layerHeight*1.5) - (layerHeight/2)+1) + (layerHeight/4));//no building should be wider than a quarter of the width or shorter than a 20th
+var maxHeight = basePosition - layerHeight;
+var buildingHeight = (Math.floor(Math.random() * (maxHeight - ((maxHeight/4)+1))) + (maxHeight/4));
+buildings.push(new Building(buildingWidth,buildingHeight,[r,g,b],xLocation,basePosition-buildingHeight));
+scrollEndX += buildingWidth;
+}
+}
+</script>
+<style type="text/css">
+canvas { border: 3px solid black; }
+</style>
+
+</head>
+<center>
+<body>
+
+<canvas id="mycanvas" width="240" height="297" style="border:1px solid #d3d3d3;"></canvas>
+
+</body>
+
+</center>
+
+</html>

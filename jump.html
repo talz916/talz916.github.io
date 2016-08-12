@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+  <head>
+  <meta charset="UTF-8">
+  <title> Testing Canvas</title>
+  <script type="text/javascript">
+  
+  window.onload = function ()
+  {
+
+  var canvas = document.getElementById("canvasOne");
+  var context = canvas.getContext("2d");
+
+
+ var myelf = new Image();
+ var myice = new Image() ;	
+ var mybk  = new Image();
+
+ myice.src="girl2flipped.png";
+ // myelf.src="" ;
+ //mybk.src="";
+
+
+
+ myelf.onload = function()
+ {
+  context.drawImage(myelf,40,55);
+}   
+
+ myice.onload = function()
+ {
+
+ ctx.drawImage(myice, 300, 0, 300, img.height * (300/img.width));
+
+}    
+ mybk.onload = function()
+{
+
+ contextbk.drawImage(mybk,0,0,canvasbk.width,canvasbk.height);
+
+}
+
+}
+// get XY along quadratic bezier at T 
+// (T==0.00 at start of curve, T==1.00 at end of curve) 
+
+/*function getQuadraticBezierXYatT(startPt,controlPt,endPt,T) {
+    var x = Math.pow(1-T,2) * startPt.x + 2 * (1-T) * T * controlPt.x + Math.pow(T,2) * endPt.x; 
+    var y = Math.pow(1-T,2) * startPt.y + 2 * (1-T) * T * controlPt.y + Math.pow(T,2) * endPt.y; 
+    return( {x:x,y:y} );*/
+    
+ </script>
+ </head>
+<body>
+
+ <div style = “width:500px; height:500px; margin:0 auto; padding:5px;”>
+
+ <canvas id="canvasOne" width="1200" height="1200"
+  style="border:2px solid black; position:absolute; 
+  left:auto; top:auto; z-index:2"></canvas>
+
+
+  </div>
+ </body>
+ </html>

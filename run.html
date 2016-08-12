@@ -1,0 +1,254 @@
+
+<html>
+  <head>
+    <title>jump</title>
+    <script type="application/javascript">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.8.2.js"></script>
+
+<script src="http://cloud.github.com/downloads/processing-js/processing-js/processing-1.4.1.min.js"></script>
+		<script type="text/processing" data-processing-target="mycanvas">
+      
+      class SideJumper
+{
+  PImage image;
+  PVector position;
+  float direction;
+  PVector velocity;
+  float jumpSpeed;
+  float walkSpeed;
+}
+ 
+// GLOBAL VARIABLES
+ 
+SideJumper oldGuy;
+float left;
+float right;
+float up;
+float down;
+
+var frontScroller;
+		var middleScroller;
+		var backScroller;
+	
+ 
+// half a pixel per frame gravity.
+float gravity = .5;
+ 
+// Y coordinate of ground for collision
+float ground = 700;
+ 
+void setup()
+{
+  size(800, 800);
+   
+  oldGuy = new SideJumper();
+  oldGuy.image = loadImage("girl2.png");
+  oldGuy.position = new PVector(400, ground);
+  oldGuy.direction = 1;
+  oldGuy.velocity = new PVector(0, 0);
+  oldGuy.jumpSpeed = 10;
+  oldGuy.walkSpeed = 4;
+  
+  frontScroller = new Scroller(800,200,600,5,[90,340,130]);
+			middleScroller = new Scroller(800,150,500,.3,[115,72,215]);
+			backScroller = new Scroller(800,20,450,0,[50,50,150]);
+   
+}
+ 
+void draw()
+{
+  background(100);
+		backScroller.drawBuildings();
+			backScroller.moveBuildings();
+			
+			middleScroller.drawBuildings();
+			middleScroller.moveBuildings();
+			
+			frontScroller.drawBuildings();
+			frontScroller.moveBuildings();
+			
+			fill(130,121,130);
+			rect(0,530,1055,260);
+  updateOldGuy();
+}
+ 
+void updateOldGuy()
+{
+  // Only apply gravity if above ground (since y positive is down we use < ground)
+  if (oldGuy.position.y < ground)
+  {
+    oldGuy.velocity.y += gravity;
+  }
+  else
+  {
+    oldGuy.velocity.y = 0;
+  }
+   
+  // If on the ground and "jump" keyy is pressed set my upward velocity to the jump speed!
+  if (oldGuy.position.y >= ground && up != 0)
+  {
+    oldGuy.velocity.y = -oldGuy.jumpSpeed;
+  }
+   
+  // Wlak left and right. See Car example for more detail.
+  oldGuy.velocity.x = oldGuy.walkSpeed * (left + right);
+   
+  // We check the nextPosition before actually setting the position so we can
+  // not move the oldguy if he's colliding.
+  PVector nextPosition = new PVector(oldGuy.position.x, oldGuy.position.y);
+  nextPosition.add(oldGuy.velocity);
+   
+  // Check collision with edge of screen and don't move if at the edge
+  float offset = 0;
+  if (nextPosition.x > offset && nextPosition.x < (width - offset))
+  {
+    oldGuy.position.x = nextPosition.x;
+  }
+  if (nextPosition.y > offset && nextPosition.y < (height - offset))
+  {
+    oldGuy.position.y = nextPosition.y;
+  }
+   
+  // See car example for more detail here.
+  pushMatrix();
+   
+  translate(oldGuy.position.x, oldGuy.position.y);
+   
+  // Always scale after translate and rotate.
+  // We're using oldGuy.direction because a -1 scale flips the image in that direction.
+  scale(oldGuy.direction, 1);
+   
+  imageMode(CENTER);
+  image(oldGuy.image, -300, 0, 80,80);
+   
+  popMatrix();
+}
+ 
+void keyPressed()
+{
+  if (key == ' ')
+  {
+    up = -1;
+  }
+}
+ 
+void keyReleased()
+{
+  if (key == ' ')
+  {
+    up = 0;
+  }
+  
+}
+class Building {
+			var xPosition;
+			var yPosition;
+			var height;
+			var width;
+			var r;
+			var g;
+			var b;
+			
+			Building(bWidth,bHeight, color, x, y){
+				xPosition = x;
+				yPosition = y;
+				r = color[0];
+				g = color[1];
+				b = color[2];
+				width = bWidth;
+				height = bHeight;
+			}
+			
+			void drawBuilding(){
+				noStroke();
+				fill(r,g,b);
+				rect(xPosition, yPosition, width, height);
+			}
+			
+			void move(speed){
+				xPosition -= speed;
+			}
+			}
+
+		
+class Scroller {
+			var layerWidth;
+			var layerHeight; 
+			var basePosition; 
+			var speed;
+			var r;
+			var g;
+			var b;
+			var scrollEndX = 0;
+			var buildings = new Array();
+			
+			Scroller(width,height,base,scrollSpeed,color){
+				layerWidth = width;
+				layerHeight = height;
+				basePosition = base;
+				speed = scrollSpeed;
+				r = color[0];
+				g = color[1];
+				b = color[2];
+				
+				//create buildings to fill the width
+				currentWidth = 0;
+				while(currentWidth <= layerWidth){
+					var buildingWidth = Math.floor(Math.random() * ((layerHeight*1.5) - (layerHeight/2)+1) + (layerHeight/4));//no building should be wider than a quarter of the width or shorter than a 20th
+					var maxHeight = basePosition - layerHeight;
+					var buildingHeight = (Math.floor(Math.random() * (maxHeight - ((maxHeight/4)+1))) + (maxHeight/4));
+					buildings.push(new Building(buildingWidth,buildingHeight,[r,g,b],currentWidth,basePosition-buildingHeight));
+					currentWidth += buildingWidth;
+				}
+				scrollEndX = currentWidth;
+			}
+			
+			
+			void drawBuildings(){
+				for(var i = 0; i < buildings.length; i++){
+					buildings[i].drawBuilding();
+				}
+			}
+			
+			void moveBuildings(){
+				for(var i = 0; i < buildings.length; i++){
+					buildings[i].move(speed);
+				}
+				scrollEndX -= speed;
+				if(scrollEndX <= 800){
+					addBuilding(scrollEndX);
+				}
+			}
+			
+			void addBuilding(xLocation){
+				var buildingWidth = Math.floor(Math.random() * ((layerHeight*1.5) - (layerHeight/2)+1) + (layerHeight/4));//no building should be wider than a quarter of the width or shorter than a 20th
+				var maxHeight = basePosition - layerHeight;
+				var buildingHeight = (Math.floor(Math.random() * (maxHeight - ((maxHeight/4)+1))) + (maxHeight/4));
+				buildings.push(new Building(buildingWidth,buildingHeight,[r,g,b],xLocation,basePosition-buildingHeight));
+				scrollEndX += buildingWidth;
+			}
+    }
+    </script>
+     <style type="text/css">
+      canvas { border: 3px solid black; }
+	</style>
+	
+	<style>
+		h1{
+			color: purple;
+		}
+	</style>
+  </head>
+  <center>
+<h1>City Rush</h1>
+
+<body>
+
+<canvas id="mycanvas" width="240" height="297" style="border:1px solid #d3d3d3;"></canvas>
+
+</body>
+
+</center>
+
+</html>
+ 
