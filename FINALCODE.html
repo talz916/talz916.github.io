@@ -410,8 +410,9 @@ void page3(){
 	fill(0);
 	textSize(20);
 	text(factList[int(random(0,17))], 30,350);
+	textSize(50);
 	text("Points: " + points, 300, 500);
-	console.log (points);
+	console.log(points);
 
 	noLoop();
 
@@ -560,7 +561,6 @@ buildings.push(new Building(buildingWidth,buildingHeight,[r,g,b],xLocation,baseP
 scrollEndX += buildingWidth;
 }
 }
-
 </script>
 <style type="text/css">
 canvas { border: 3px solid black; }
